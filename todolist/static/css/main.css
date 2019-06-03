@@ -1,0 +1,58 @@
+body {
+	min-height: 500px;
+	padding-top: 50px; /* Required padding for .navbar-fixed-top. Change if height of navigation changes. */
+	padding-bottom: 50px;
+}
+
+#usertable tr:hover {background-color: #ddd;}
+
+#usertable th {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: #4CAF50;
+    color: white;
+}
+
+#userrolestable th {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: #4CAF50;
+    color: white;
+}
+
+div.myMarkdown img {
+	margin: auto;
+	width: 50%;
+    height: auto;
+	border: 1px solid #444444;
+	padding: 4px;
+}
+
+.color-green {
+	color: #008000
+}
+
+.color-grey {
+	color: #A9A9A9
+}
+
+.color-yellow {
+	color: #e6b800
+}
+
+.color-red {
+	color: #b30000
+}
+
+.gly-spin {
+  -webkit-animation: spin 1s infinite linear;
+  -moz-animation: spin 1s infinite linear;
+  -o-animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% { transform: rotate(-20deg);}
+  50% { transform: rotate(20deg);}
+  100% {transform: rotate(-20deg);}
+}

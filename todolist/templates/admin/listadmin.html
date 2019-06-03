@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<!-- Modal Edit Facility-->
+<div class="modal fade" id="ModalEdit" tabindex="-1" role="dialog" aria-labelledby="FacilityEditLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                 <h4 class="modal-title" id="TaskEditLabel">Edit Facility</h4>
+            </div>
+            <div class="modal-body">...</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->  
+
+<ul class="nav nav-tabs">
+  <li role="presentation" {% if ListData.name=='Facilities' %}class='active'{%endif%}><a class="nav-link" href="{{ url_for('admin.facilities') }}">Facilities</a></li>
+  <li role="presentation" {% if ListData.name=='Rooms' %}class='active'{%endif%}><a class="nav-link" href="{{ url_for('admin.rooms') }}">Rooms</a></li>
+  <li role="presentation" {% if ListData.name=='Equipment' %}class='active'{%endif%}><a class="nav-link" href="{{ url_for('admin.equipment') }}">Equipment</a></li>
+</ul>
+
+  <h1>{{ListData.name}} Administration page</h1>
+  <p><a class="btn btn-primary" data-toggle="modal" data-target="#ModalEdit" data-myid="-1">{{ListData.add}}</a></p>
+
+{{ table }}	
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Fill modal with content from link href
+$("#ModalEdit").on("show.bs.modal", function(event) {
+    var btn = $(event.relatedTarget);
+	var linkid = btn.data('myid');
+	var urlbase="{{url_for(ListData.ajaxlink)}}";
+	var url = urlbase.concat('?id=',linkid);
+    $(this).find(".modal-body").text('Loading...')
+	$(this).find(".modal-content").load(url)
+});
+</script>
+{% endblock %}

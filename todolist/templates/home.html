@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block container %}
+  <h1>Welcome to ToDo Lists</h1>
+    <h3>Hey {{ current_user.name }}!!</h3>
+    <a href="{{ url_for('auth.logout') }}">Click here to logout</a>
+
+	
+{% endblock %}

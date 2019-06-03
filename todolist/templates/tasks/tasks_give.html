@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block container %}
+
+<ul class="nav nav-tabs">
+  <li role="presentation" {% if view.name=='User to Task' %}class='active'{%endif%}><a class="nav-link" href="{{ url_for('tasks.usertask') }}">User to Task</a></li>
+  <li role="presentation" {% if view.name=='User to Equipment' %}class='active'{%endif%}><a class="nav-link" href="{{ url_for('tasks.userequipment') }}">User to Equipment</a></li>
+</ul>
+<p/>
+<div class="container">
+  <div class="form-group col-md-6">
+  <label>{{ view.pickuser.usersfield.label }}</label>
+  {{ view.pickuser.usersfield(class="form-control") }}
+  </div>
+  <div class="form-group col-md-6">
+    <label>{{ view.pickuser.priority.label }}</label>
+  {{ view.pickuser.priority(class="form-control") }}
+  </div>
+</div>
+  
+<div class="table-responsive" id='dtable'>
+{{ view.table }}	
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+<script>
+$(document).ready(function() {
+
+  $('#usersfield').on('change', function(){
+	var user=$(this).val();
+	var urlbase="{{view.ajaxtable}}";
+	var url = urlbase.concat('?user=',user);
+	$('#dtable').html('<center><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></center>');
+	$('#dtable').load(url, function() {
+		$('#TaskTable').DataTable({
+			paging: false
+		});
+	});
+  });
+
+  $('#dtable').on( 'click', ' tr', function(){
+    var urlbase="{{view.ajaxtoggle}}";
+	var td = $(this).find('#ToggleBtn')
+	var lineid=td.data('myid')
+	var userid=$('#usersfield').val()
+	var prior=$('#priority').val()
+	var url = urlbase.concat('?user=',userid).concat('&line=',lineid).concat('&pr=',prior);
+	td.html('<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>');
+	td.load(url)
+  });
+
+
+    $('#TaskTable').DataTable({
+		paging: false
+	});
+});
+</script>
+{% endblock %}

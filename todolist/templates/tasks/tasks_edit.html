@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block container %}
+  <h1>Task Edit</h1>
+  Here you can enter task name and description details. Description may be formated using <a href='https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet' target="_blank">Markdown language</a><br>
+  See how your task will looks like:
+  
+{% from "_formhelpers.html" import render_form %}
+{% if form != None %}
+<form class="form-horizontal" method="POST" action={{ url_for('tasks.edit', id=form.id, form='task' ) }}>
+{{render_form(form)}}
+</form>
+{% endif %}
+
+{% if textform.id>=0 %}
+<div class="panel panel-success">
+<div class="panel-heading">{{view['name']}} [ID={{view['id']}}]</div>
+<div class="panel-body myMarkdown">
+{{ view['text'] }}
+</div>
+</div>
+
+<form class="form-horizontal" method="POST" action={{ url_for('tasks.edit', id=textform.id , form='text') }}>
+{{render_form(textform)}}
+</form>
+{% endif %}
+
+{% if view['images'] is not none %}
+
+<div class="row">
+<div class="col-sm-4 col-md-3">
+	{# New image panel #}
+	<div class="panel panel-primary">
+	  <form action="{{url_for('tasks.imgupload',id=textform.id)}}" method="post" enctype="multipart/form-data">
+	  <div class="panel-body">
+		<div class="form-group">
+				<label class="btn btn-block btn-primary">
+					Browse&hellip; <input type="file" name='image' style="display: none;" id="ImageFile">
+				</label>
+		</div>
+		<div class="form-group" style="padding-bottom:100%; overflow:hidden; position:relative">
+		  <img id="ImageFilePreview" class="img-rounded" src="#" alt="Image preview" style="width:100%; object-fit: cover; position:absolute;" />
+		</div>
+		<div class="form-group">
+			<label for="imagelink">Keyword (no spaces)</label>
+			<input type="text" class="form-control" id="imagelink" name='imglink'>
+		</div>
+	  </div>
+	  <div class="panel-footer">
+		<button type="submit" class="btn btn-primary">Submit</button>
+	  </div>
+	  </form>
+	</div>
+</div>
+
+{# Avaliable images panel #}
+<div class="col-sm-8 col-md-9">
+	<div class="panel panel-primary">
+	<div class="panel-heading">Available images:</div>
+	<div class="panel-body">
+	{%- for img in view['images'] %}
+		<div class="col-md-2">
+			<p>{{img[0]}}</p>
+			<a href="#" class="pop">
+				<img src="{{url_for('image_files', filename=view['id']+'/'+img[1])}}" style="width: 100%; ">
+			</a>
+			
+		</div>
+	{% endfor -%}
+	</div>
+	</div>
+</div>
+</div>
+{# Modal image #}
+<div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">              
+      <div class="modal-body">
+      	<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <img src="" class="imagepreview" style="width: 100%;" >
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+//Show image preview before uploading
+$("#ImageFile").change(function() {
+  console.log('changed')
+  if(this.files && this.files[0]){
+    
+    var reader = new FileReader();
+	reader.onload = function(e) {
+		$('#ImageFilePreview').attr('src', e.target.result);
+	}
+	reader.readAsDataURL(this.files[0]);
+  }
+})
+$(function() {
+		$('.pop').on('click', function() {
+			$('.imagepreview').attr('src', $(this).find('img').attr('src'));
+			$('#imagemodal').modal('show');   
+		});		
+});
+</script>
+{% endblock %}

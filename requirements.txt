@@ -1,0 +1,8 @@
+flask
+flask-sqlalchemy
+flask-login
+flask_wtf
+flask_table
+flask_misaka
+psycopg2-binary
+ldap3

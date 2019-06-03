@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block container %}
+<!-- Modal -->
+<div class="modal fade" id="TaskPopup" tabindex="-1" role="dialog" aria-labelledby="TaskEditLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                 <h4 class="modal-title" id="TaskEditLabel">Modal title</h4>
+            </div>
+            <div class="modal-body">...</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+  <h1>Tasks</h1>
+  <div class="container">
+  <h3>You can do something with your tasks.</h3>
+  <ul>
+	<li>You can multi-sort by shift-clicking the coloumns</li>
+	<li>All tasks show Task priority while My Task show your priority for the task</li>
+  </ul>
+
+  {% if page=='Admin' %}{% if current_user.has_role('Admin') %}<a href="{{ url_for('tasks.edit') }}" class="btn btn-success" role="button">New Task</a>{%- endif %}{% else %}
+  <a href="{{url_for("tasks.home",dd='dd', tsk='my' )}}" class="btn btn-primary" role="button">My Tasks to date</a>
+	<a href="{{url_for("tasks.home",dd='all',tsk='my' )}}" class="btn btn-primary" role="button">My Tasks</a>
+	&nbsp;
+	<a href="{{url_for("tasks.home",dd='dd', tsk='all')}}" class="btn btn-info" role="button">All Tasks to date</a>
+	<a href="{{url_for("tasks.home",dd='all',tsk='all')}}" class="btn btn-info" role="button">All Tasks</a>
+
+  {%- endif %}
+  </div>
+<hr>
+<div class="table-responsive">
+{{ table }}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+<script>
+$(document).ready(function() {
+    $('#TaskTable').DataTable({
+		paging: false,
+		{% if table.order -%}
+		 order: [[ {{table.order}}, "desc" ]]
+		{% else -%}
+		 order: [[ 0, "desc" ]]
+		{%- endif %}
+	});
+
+// Fill modal with content from link href
+$(".TaskDesc").click(function() {
+	var taskid = $(this).data('id')
+	var urlbase="{{url_for('tasks.taskpopup')}}";
+	var url = urlbase.concat('?id=',taskid);
+	$("#TaskPopup").find(".modal-title").text('* * * * *')
+    $("#TaskPopup").find(".modal-body").text('Loading...')
+	$("#TaskPopup").modal('show');
+	$("#TaskPopup").find(".modal-content").load(url, function( response, status, xhr ) {
+		if ( status == "error" ) {
+			var msg = "Sorry but there was an error: ";
+			$("#TaskPopup").find(".modal-body").html( 'Failed:' + xhr.status + " " + xhr.statusText );
+			}
+		});
+});
+//Done button pressed
+$( ".TaskDone" ).click(function() {
+	var mytd = $(this).parent()
+	var taskid = $(this).data('id')
+	//mytd.html('Failed')
+	var urlbase="{{url_for('tasks.taskdone')}}";
+	var url = urlbase.concat('?id=',taskid);
+	$.ajax({
+			url:url,
+			type:'POST',
+			dataType: 'text',
+			success: function(data) {
+				mytd.html(data)
+			},
+			error: function(xmlhttprequest, textstatus, message) {
+					alert("An error has occurred making the request:\n" + message);
+			}
+	});
+});
+//Log button pressed
+$( ".TaskLog" ).click(function() {
+	var taskid = $(this).data('logid')
+	var urlbase="{{url_for('tasks.tasklog')}}";
+	var url = urlbase.concat('?id=',taskid);
+	$("#TaskPopup").find(".modal-title").text('Log value')
+	$("#TaskPopup").find(".modal-body").text('Loading...')
+	$("#TaskPopup").modal('show');
+	$("#TaskPopup").find(".modal-content").load(url, function( response, status, xhr ) {
+		if ( status == "error" ) {
+			var msg = "Sorry but there was an error: ";
+			$("#TaskPopup").find(".modal-body").html( 'Failed:' + xhr.status + " " + xhr.statusText );
+			}
+		});
+});
+$("#TaskPopup").on( 'click', "#LogFormBtn", function() {
+	var taskid = $(this).data('id')
+	var urlbase="{{url_for('tasks.tasklog')}}";
+	var url = urlbase.concat('?id=',taskid);
+	$.ajax({
+		type:"POST",
+		url:url,
+		data: $('#LogForm').serialize(),
+		success: function(data,st,xhr) {
+			if ( xhr.status == 201 ) {
+				$('[data-logid='+taskid+']').parent().html(data);
+				$("#TaskPopup").modal('hide');
+			} else if ( xhr.status == 200 ){
+				$("#TaskPopup").find(".modal-content").html(data);
+				console.log(data);
+			}
+		},
+		error: function(xhr, text, error) {
+			$("#LogFormErr").html('Error: '+ error);
+			console.log(xhr);
+		}
+	})
+});
+
+} );
+</script>
+{% endblock %}

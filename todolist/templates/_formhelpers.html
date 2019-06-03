@@ -1,0 +1,59 @@
+{% macro render_field(fld) %}
+<div class="form-group">
+		{{ fld.label(class_="control-label col-sm-2") }}
+		<div class="col-sm-10">{{ fld(class_="form-control")|safe }}
+		{% if fld.smalltext %}<small class="form-text text-muted">fld.smalltext</small>{% endif %}
+		{% if fld.errors %}{% for error in fld.errors %}
+		<div class="alert alert-danger alert-dismissable" role='alert'>
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		{{ error }}
+		</div>
+		{% endfor %}{% endif %}		</div>
+	</div>
+{% endmacro %}
+
+{% macro render_id_active(form) %}
+	<div class="form-group">
+		<label class="control-label col-sm-2">{{form.formname}} ID</label>
+		<div class="col-sm-2"><input class="form-control" type="text" value="{% if form.id>=0 %}{{form.id}}{% else %}NEW {{form.formname}}{% endif %}" readonly>
+		</div>
+		<div class="col-sm-4 checkbox"><label>{{ form.active }} {{ form.active.label.text }}</label></div>
+	</div>
+{% endmacro %}
+
+{% macro render_id(form) %}
+<div class="form-group">
+	<label class="control-label col-sm-2" >{{form.formname}} ID:</label>
+	<div class="col-sm-10"><label class="control-label">{% if form.id>=0 %}{{form.id}}{% else %}NEW {{form.formname}}{% endif %}</label></div>
+</div>
+{% endmacro %}
+
+{% macro render_btn(key,text,type='primary')%}
+<li role="presentation"><button type="submit" name="submit" value="{{key}}" class="btn btn-{{type}}">{{text}}</a></li>
+{% endmacro %}
+
+{% macro render_btns(form)%}
+<ul class="nav nav-pills nav-fill">{% for btn in form.buttons() %}
+{{render_btn(*btn)}}{% endfor %}
+</ul>
+{% endmacro %}
+
+{% macro render_form(form,panel='default')%} {# Require form.id, form.formname, form.buttons, form.idfield, form.fieldslst #}
+<div class="panel panel-{{panel}}">
+<div class="panel-heading">{% if form.id>=0 %}Edit {{form.formname}} {% else %}NEW {{form.formname}}{% endif %}</div>
+<div class="panel-body">
+{% if form.idfield -%}
+	{% if form.idfield == 'id-active' -%}
+		{{ render_id_active(form) }}
+	{%- elif form.idfield == 'id' -%} 
+		{{ render_id(form) }}
+	{%- endif %}
+{%- endif %}
+{% for field in form.fieldslst() %}{{render_field(field)}}{% endfor %}
+{{ form.hidden_tag() }}
+</div>  
+<div class="panel-footer">
+{{render_btns(form)}}
+</div>
+</div>
+{% endmacro %}

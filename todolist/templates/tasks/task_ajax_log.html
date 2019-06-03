@@ -1,0 +1,24 @@
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	<h4 class="modal-title" id="TaskEditLabel">{{view['title']}}</h4>
+</div>
+<div class="modal-body">
+<form method="post" class="form-horizontal" id="LogForm">
+<div class="form-group">
+{{ form.value.label(class_="control-label col-sm-6") }}
+<div class="col-sm-6">{{ form.value(class_="form-control")|safe }}
+{%- if form.value.errors %}{% for error in form.value.errors %}
+		<div class="alert alert-danger alert-dismissable" role='alert'>
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		{{ error }}
+		</div>
+{% endfor %}{% endif %}
+</div></div>
+{{ form.hidden_tag() }}
+<div id="LogFormErr"></div>
+</div>
+<div class="modal-footer">
+<button type="button" id="LogFormBtn" class="btn btn-success" data-id="{{view['id']}}">Log...</button>
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+</form>

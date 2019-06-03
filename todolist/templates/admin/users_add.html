@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block container %}
+  <h1>Users Add page</h1>
+
+<form class="form-horizontal" method="POST" action={{ url_for('admin.useradd') }}>
+<div class="form-group">
+	{{ form.username.label(class_="control-label col-sm-2") }}
+	<div class="col-sm-10">{{ form.username(class_="form-control") }}</div>
+</div>
+<div class="form-group">
+	{{ form.nickname.label(class_="control-label col-sm-2") }}
+	<div class="col-sm-10">{{ form.nickname(class_="form-control") }}</div>
+</div>
+<div class="form-group">
+	<div class="col-sm-offset-2 col-sm-10">{{ form.submit(class_="btn btn-default") }}</div>
+</div>
+{{ form.hidden_tag() }}
+</form>
+
+{% endblock %}

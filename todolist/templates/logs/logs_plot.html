@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block container %}
+  <h1>Logs</h1>
+  <ul class="nav nav-tabs">
+    <li role="presentation" {% if name=='donetbl' %}class='active'{%endif%}>
+        <a class="nav-link" href="{{ url_for('logs.done_tbl') }}">Done Table</a></li>
+    <li role="presentation" {% if name=='floattbl' %}class='active'{%endif%}>
+        <a class="nav-link" href="{{ url_for('logs.float_tbl') }}">Float Log Table</a></li>
+    <li role="presentation"{% if name=='floatplot' %}class='active'{%endif%}>
+        <a class="nav-link" href="{{ url_for('logs.float_plot') }}">Float Log Plot</a></li>
+  </ul>
+
+<br>
+<div id="svgdiv" style="display:none" width="100%"></div>
+<br>
+<button type="button" class="btn btn-info" id='DrawBtn'>Replot</button>
+<hr>
+<div class="table-responsive">
+{{ FloatLogsTbl }}
+</div>
+<hr>
+
+
+{% endblock %}
+
+{% block style -%}
+<style>
+.grid line {
+  stroke: lightgrey;
+  stroke-opacity: 0.7;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+</style>
+{%- endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/d3.js') }}"></script>
+<script src="{{ url_for('static', filename='js/datatables.min.js') }}"></script>
+<script>
+function svgplot(data)
+{
+  var parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S.%f");
+
+  var Xlbl='Dates',Ylbl='Logged Value';
+  $("#svgdiv").html("");
+  $("#svgdiv").height(500);
+  var margin = {top: 10, right: 60, bottom: 80, left: 60};
+
+  var color = d3.schemeCategory10;
+
+  var imgwidth = $("#svgdiv").width();
+	var imgheight = $("#svgdiv").height();
+	var width = imgwidth - margin.left - margin.right;
+	var height = imgheight - margin.top - margin.bottom;
+
+  var svg = d3.select("#svgdiv").append("svg:svg").attr("height" , '100%').attr("width", '100%');
+
+  var AxisX = d3.scaleTime().range([0,width]);
+  var AxisY = d3.scaleLinear().range([height,0]);
+ //.tickFormat(d3.timeFormat("%Y-%m-%d"))
+  var plt=svg.attr('class', 'chart').append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
+  var xmin=d3.min(data.map(function(d){return parseTime(d.minx)}));
+  var xmax=d3.max(data.map(function(d){return parseTime(d.maxx)}));
+  var ymin=d3.min(data.map(function(d){return d.miny}));
+  var ymax=d3.max(data.map(function(d){return d.maxy}));
+  var yminmax=0.05*(ymax-ymin);
+  AxisX.domain([xmin,xmax]);
+  AxisY.domain([ymin-yminmax,ymax+yminmax]);
+
+  // gridlines in x axis function
+  function make_x_gridlines() {  return d3.axisBottom(AxisX).ticks(10) };
+
+  // gridlines in y axis function
+  function make_y_gridlines() {	 return d3.axisLeft(AxisY).ticks(5) };
+
+  // add the X gridlines
+  plt.append("g").attr("class", "grid")
+      .attr("transform", "translate(0," + height + ")")
+      .call( make_x_gridlines().tickSize(-height).tickFormat("") );
+
+  // add the Y gridlines
+  plt.append("g").attr("class", "grid")
+        .call( make_y_gridlines().tickSize(-width).tickFormat("") );
+
+  function PointX(d) { return AxisX(parseTime(d[0])); };
+  function PointY(d) { return AxisY(d[1]); };
+  var Line = d3.line().x(PointX).y(PointY);
+
+  var lgnd = [];
+
+  data.forEach(function(tskplot,index){
+    plt.append("path").attr("class", "line").attr('d',Line(tskplot.data))
+    .attr('stroke', color[index]).attr('stroke-width', 2).attr('fill', 'none');
+    plt.selectAll("dot").data(tskplot.data).enter().append("circle")
+    .attr('stroke', color[index]).attr("fill", color[index])
+    .attr("cx", PointX).attr("cy",PointY).attr("r", 3);
+    lgnd.push({text:tskplot.name,color:color[index]});
+  });
+
+
+
+
+  //Add Legend
+  var legend = plt.selectAll(".legend")
+      .data(lgnd).enter().append("g").attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+  legend.append("rect").attr("x", width - 18)
+      .attr("width", 18).attr("height", 18).style("fill", function(d) { return d.color; });
+  legend.append("text").attr("x", width - 24).attr("y", 9).attr("dy", ".35em")
+      .style("text-anchor", "end").text(function(d) { return d.text; });
+
+  plt.append("g").attr("class", "axisX").attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(AxisX).tickFormat(d3.timeFormat("%Y-%m-%d")))
+    .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-40)");
+
+  plt.append("g").attr("class", "axisY").call(d3.axisLeft(AxisY));
+
+  plt.append('text').attr('class','xlabel').attr("x", width/2).attr("y",height + margin.bottom).attr("dy", "-0.4em")
+		.style("text-anchor", "middle").text(Xlbl);
+  plt.append("text").attr("transform", "rotate(-90)").attr('class','ylabell').attr("y", 0 - margin.left).attr("x",0 - (height / 2)).attr("dy", "1.2em")
+  		.style("text-anchor", "middle").text(Ylbl);
+};
+
+$(document).ready(function() {
+    var table = $('#LogTable').DataTable({
+      "lengthMenu": [ 25, 250, 1000 ],
+      columnDefs: [ {
+            orderable: false,
+            className: 'select-checkbox',
+            targets: 0
+        } ],
+      select: {
+            style:    'os',
+            selector: 'td:first-child'
+        }
+	});
+
+  $('#DrawBtn').click( function () {
+      var dataArr = [];
+      var rowData = table.rows( { selected: true } ).data();
+      $.each($(rowData),function(){
+       	dataArr.push(this["1"]);
+       });
+
+    	var url="{{url_for('logs.api')}}";
+    	$.ajax({
+    			url:url,
+    			type:'GET',
+          data: {"tasks": JSON.stringify(dataArr) },
+          contentType: "application/json",
+          dataType: "json",
+    			success: function(data) {
+            $("#svgdiv").show();
+    				svgplot(data);
+    			},
+    			error: function(xmlhttprequest, textstatus, message) {
+    					alert("An error has occurred making the request:\n" + message);
+    			}
+    	});
+
+  } );
+
+
+});//DocumentReady
+</script>
+{% endblock %}

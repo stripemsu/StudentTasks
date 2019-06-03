@@ -1,0 +1,19 @@
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	<h4 class="modal-title" id="TaskEditLabel"><a href="#details" data-toggle="collapse">{{view['title']}}</a></h4>
+	<div id="details" class="collapse">
+	<table class='table table-sm table-hover'>
+	{% for key,val in view['details'] %}
+	<tr><th><strong>{{key}}:</strong></th><td width='10px'>&nbsp;</td><td>{{ val }}</td></tr>	
+	{% endfor %}
+	</table>
+	</div>
+</div>
+<div class="modal-body">
+<div class="myMarkdown">
+{{view['content']}}
+</div>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>

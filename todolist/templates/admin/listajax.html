@@ -1,0 +1,29 @@
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+	<h4 class="modal-title" id="TaskEditLabel">{% if form.id>=0 %}Edit {{form.formname}} {% else %}NEW {{form.formname}}{% endif %}</h4>
+</div>
+<form class="form-horizontal" method="POST" action="{{ form.formaction }}">
+<div class="modal-body">
+{% for fld in form.fieldslst() -%}
+	<div class="form-group">
+	{{ fld.label(class_="control-label col-sm-2") }}
+	<div class="col-sm-10">{{ fld(class_="form-control")|safe }}
+	{% if fld.smalltext %}<small class="form-text text-muted">fld.smalltext</small>{% endif %}
+	{% if fld.errors -%}
+		{% for error in fld.errors %}
+		<div class="alert alert-danger alert-dismissable" role='alert'>
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		{{ error }}
+		</div>
+		{% endfor -%}
+	{% endif %}
+	</div>
+	</div>
+{%- endfor %}	
+</div>
+<div class="modal-footer">
+	{{ form.submit(class_="btn btn-default") }}
+	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+</div>
+{{ form.hidden_tag() }}
+</form>
