@@ -8,6 +8,6 @@ System does not store passwords, but authentificate its users over ldap director
 However, as it initially been oriented to work in big organisation, user role shoud be added via web interfase.
 
 There are followin roles in the system:
-Admin - can edit users and roles, adit tasks in own facility, create new facilities, and all below
-Supervisor - can edit task description and waatch logs
-User - can mark tasks done
+* Admin - can edit users and roles, adit tasks in own facility, create new facilities, and all below
+* Supervisor - can edit task description and waatch logs
+* User - can mark tasks done
