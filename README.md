@@ -4,10 +4,10 @@ Based on python, flask and SQLAlchemy. Tested with Postgres in production. Does 
 
 Please update config.py according to your requirements.
 
-System does not store passwords, but authentificate its users over ldap directory.
-However, as it initially been oriented to work in big organisation, user role shoud be added via web interfase.
+System does not store passwords, but authenticate its users over ldap directory.
+However, as it initially been oriented to work in big organisation, user role should be added via web interface.
 
-There are followin roles in the system:
-* Admin - can edit users and roles, adit tasks in own facility, create new facilities, and all below
-* Supervisor - can edit task description and waatch logs
+There are following roles in the system:
+* Admin - can edit users and roles, audit tasks in own facility, create new facilities, and all below
+* Supervisor - can edit task description and watch logs
 * User - can mark tasks done
